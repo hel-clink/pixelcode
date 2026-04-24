@@ -365,18 +365,24 @@ const Con = (() => {
 ════════════════════════════════════════ */
 const Status = (() => {
   let el;
+  let _cur = 'stopped';
+
   function init() { el = document.getElementById('run-status'); }
+
   function set(state) {
-    // state: 'running' | 'error' | 'stopped'
+    _cur = state;
     if (!el) return;
     el.className = 'run-status ' + state;
-    const labels = { running: I18n.t('status.running'), error: I18n.t('status.error'), stopped: I18n.t('status.stopped') };
+    const labels = {
+      running: I18n.t('status.running'),
+      error:   I18n.t('status.error'),
+      stopped: I18n.t('status.stopped'),
+    };
     el.textContent = labels[state] || '';
   }
-  let _cur = 'stopped';
+
   function refresh() { set(_cur); }
-  const _origSet = set;
-  function set(state) { _cur = state; _origSet(state); }
+
   return { init, set, refresh };
 })();
 
