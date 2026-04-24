@@ -252,6 +252,9 @@ const Canvas = (() => {
     _alloc(w, h);
     document.getElementById('canvas-info').textContent = w + '×' + h;
     clear(); fit();
+    // Restart the run loop so the worker gets the new dimensions
+    // and all draw calls use the updated canvas size
+    Runner.start();
   }
 
   function fit() {
