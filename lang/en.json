@@ -111,26 +111,6 @@
       "revert": "Return to Beginner Mode?\nChanges to system code will be lost."
     }
   },
-  "examples": [
-    {
-      "name": "🔴 Single Pixel"
-    },
-    {
-      "name": "♟ Chessboard"
-    },
-    {
-      "name": "🌈 Color Gradient"
-    },
-    {
-      "name": "⭕ Circle"
-    },
-    {
-      "name": "✨ Animation: Wave"
-    },
-    {
-      "name": "🌌 Animation: Stars"
-    }
-  ],
   "helpNav": {
     "ref": "📋 Function Reference",
     "tut1": "Ch. 1: First Pixel",

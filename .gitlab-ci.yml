@@ -9,6 +9,7 @@ pages:
     - cp -r lib public/
     - cp -r help public/
     - cp -r lang public/
+    - cp -r examples public/
   artifacts:
     paths:
       - public

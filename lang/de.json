@@ -111,26 +111,6 @@
       "revert": "Zurück zum Einsteiger-Modus?\nÄnderungen am System-Code gehen verloren."
     }
   },
-  "examples": [
-    {
-      "name": "🔴 Einzelner Pixel"
-    },
-    {
-      "name": "♟ Schachbrett"
-    },
-    {
-      "name": "🌈 Farbverlauf"
-    },
-    {
-      "name": "⭕ Kreis"
-    },
-    {
-      "name": "✨ Animation: Welle"
-    },
-    {
-      "name": "🌌 Animation: Sterne"
-    }
-  ],
   "helpNav": {
     "ref": "📋 Funktions-Referenz",
     "tut1": "Kap. 1: Erster Pixel",

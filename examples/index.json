@@ -1,0 +1,97 @@
+[
+  {
+    "id": "pixel",
+    "file": "pixel.py",
+    "names": { "en": "🔴 Single Pixel",        "de": "🔴 Einzelner Pixel" }
+  },
+  {
+    "id": "chessboard",
+    "file": "chessboard.py",
+    "names": { "en": "♟ Chessboard",            "de": "♟ Schachbrett" }
+  },
+  {
+    "id": "gradient",
+    "file": "gradient.py",
+    "names": { "en": "🌈 Color Gradient",        "de": "🌈 Farbverlauf" }
+  },
+  {
+    "id": "circle",
+    "file": "circle.py",
+    "names": { "en": "⭕ Circle",                "de": "⭕ Kreis" }
+  },
+  {
+    "id": "wave",
+    "file": "wave.py",
+    "names": { "en": "✨ Sine Wave",             "de": "✨ Sinuswelle" }
+  },
+  {
+    "id": "stars",
+    "file": "stars.py",
+    "names": { "en": "🌌 Twinkling Stars",       "de": "🌌 Funkelnde Sterne" }
+  },
+  {
+    "id": "plasma",
+    "file": "plasma.py",
+    "names": { "en": "🔮 Plasma Effect",         "de": "🔮 Plasma-Effekt" }
+  },
+  {
+    "id": "fire",
+    "file": "fire.py",
+    "names": { "en": "🔥 Fire Simulation",       "de": "🔥 Feuer-Simulation" }
+  },
+  {
+    "id": "clock",
+    "file": "clock.py",
+    "names": { "en": "🕐 Analog Clock",          "de": "🕐 Analoguhr" }
+  },
+  {
+    "id": "maze",
+    "file": "maze.py",
+    "names": { "en": "🧩 Random Maze",           "de": "🧩 Zufalls-Labyrinth" }
+  },
+  {
+    "id": "spiral",
+    "file": "spiral.py",
+    "names": { "en": "🌀 Color Spiral",          "de": "🌀 Farbspirale" }
+  },
+  {
+    "id": "gameoflife",
+    "file": "gameoflife.py",
+    "names": { "en": "🧬 Game of Life",          "de": "🧬 Game of Life" }
+  },
+  {
+    "id": "mandelbrot",
+    "file": "mandelbrot.py",
+    "names": { "en": "🔬 Mandelbrot Fractal",    "de": "🔬 Mandelbrot-Fraktal" }
+  },
+  {
+    "id": "landscape",
+    "file": "landscape.py",
+    "names": { "en": "🏔 Fractal Landscape",     "de": "🏔 Fraktal-Landschaft" }
+  },
+  {
+    "id": "snowflake",
+    "file": "snowflake.py",
+    "names": { "en": "❄️ Koch Snowflake",        "de": "❄️ Koch-Schneeflocke" }
+  },
+  {
+    "id": "minecraft",
+    "file": "minecraft.py",
+    "names": { "en": "⛏ Minecraft World",        "de": "⛏ Minecraft-Welt" }
+  },
+  {
+    "id": "flower",
+    "file": "flower.py",
+    "names": { "en": "🌸 Blooming Flower",       "de": "🌸 Blume" }
+  },
+  {
+    "id": "galaxy",
+    "file": "galaxy.py",
+    "names": { "en": "🌌 Galaxy",                "de": "🌌 Galaxie" }
+  },
+  {
+    "id": "butterfly",
+    "file": "butterfly.py",
+    "names": { "en": "🦋 Butterfly / Lorenz",    "de": "🦋 Schmetterling / Lorenz" }
+  }
+]

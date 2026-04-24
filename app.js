@@ -159,62 +159,42 @@ const I18n = (() => {
 /* ════════════════════════════════════════
    EXAMPLES
 ════════════════════════════════════════ */
-const EXAMPLES = [
-  { name:'🔴 Einzelner Pixel', code:
-`x = getBreite() // 2
-y = getHoehe() // 2
-setPixel(x, y, 255, 0, 0)
-`},
-  { name:'♟ Schachbrett', code:
-`for y in range(getHoehe()):
-    for x in range(getBreite()):
-        if (x + y) % 2 == 0:
-            setPixel(x, y, 255, 255, 255)
-        else:
-            setPixel(x, y, 0, 0, 0)
-`},
-  { name:'🌈 Farbverlauf', code:
-`for y in range(getHoehe()):
-    for x in range(getBreite()):
-        r = x * 255 // getBreite()
-        g = y * 255 // getHoehe()
-        setPixel(x, y, r, g, 128)
-`},
-  { name:'⭕ Kreis', code:
-`mx = getBreite() // 2
-my = getHoehe() // 2
-r  = min(mx, my) - 5
-for y in range(getHoehe()):
-    for x in range(getBreite()):
-        dx = x - mx
-        dy = y - my
-        if abs((dx*dx + dy*dy)**0.5 - r) < 1.5:
-            setPixel(x, y, 80, 200, 255)
-`},
-  { name:'✨ Animation: Welle', code:
-`import math
+/* ════════════════════════════════════════
+   EXAMPLES — loaded dynamically from examples/
+   index.json lists all examples with per-language names.
+   .py files are fetched on demand when the user clicks Load.
+════════════════════════════════════════ */
+const Examples = (() => {
+  let index = [];  // array of { id, file, names: {en, de, …} }
 
-def draw(frame):
-    leinwandLoeschen()
-    for x in range(getBreite()):
-        y = int(getHoehe()/2 + math.sin((x + frame) * 0.1) * 40)
-        if 0 <= y < getHoehe():
-            setPixel(x, y, 80, 200, 255)
-        if 0 <= y+1 < getHoehe():
-            setPixel(x, y+1, 30, 100, 160)
-`},
-  { name:'🌌 Animation: Sterne', code:
-`import math, random
-random.seed(42)
-sterne = [(random.randint(0,getBreite()-1), random.randint(0,getHoehe()-1), random.random()) for _ in range(80)]
+  async function load() {
+    try {
+      const r = await fetch('examples/index.json');
+      if (!r.ok) throw new Error(r.status);
+      index = await r.json();
+    } catch(e) {
+      console.warn('Could not load examples/index.json:', e);
+      index = [];
+    }
+  }
 
-def draw(frame):
-    leinwandLoeschen()
-    for sx, sy, phase in sterne:
-        hell = int(128 + 127 * math.sin(frame * 0.07 + phase * 6.28))
-        setPixel(sx, sy, hell, hell, hell)
-`},
-];
+  /** Fetch the .py source for one example (on demand). */
+  async function fetchCode(item) {
+    const r = await fetch('examples/' + item.file);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return await r.text();
+  }
+
+  /** Localised display name for an example item. */
+  function nameFor(item) {
+    const lang = I18n.currentCode();
+    return (item.names && (item.names[lang] || item.names['en'])) || item.id;
+  }
+
+  function getIndex() { return index; }
+
+  return { load, fetchCode, nameFor, getIndex };
+})();
 
 /** Returns the default starter code in the current language */
 function defaultCode() {
@@ -1345,29 +1325,58 @@ function wireEvents() {
   // Hints / examples
   document.getElementById('btn-hint').addEventListener('click', () => {
     const list = document.getElementById('hint-list');
-    list.innerHTML = '';
-    EXAMPLES.forEach((ex, idx) => {
-      const row = document.createElement('div');
-      row.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:8px;';
-      const lbl = document.createElement('span'); lbl.style.fontSize = '.8rem';
-      // Use translated name from lang JSON if available, fallback to built-in name
-      const translated = I18n.t('examples.' + idx + '.name');
-      lbl.textContent = (translated && !translated.startsWith('examples.')) ? translated : ex.name;
-      const btn = document.createElement('button'); btn.className = 'btn';
-      btn.style.cssText = 'padding:2px 8px;font-size:.74rem;';
-      btn.textContent = I18n.t('modals.hint.load');
-      btn.onclick = () => {
-        if (S.isProfi && S.cmProfi) {
-          const full = S.cmProfi.getValue(), idx = full.indexOf(SYSTEM_MARKER);
-          S.cmProfi.setValue(idx > -1 ? full.slice(0, idx) + SYSTEM_MARKER + '\n' + ex.code : ex.code);
-        } else {
-          S.cmMain.setValue(ex.code);
-        }
-        closeModal('modal-hint');
-      };
-      row.append(lbl, btn); list.appendChild(row);
-    });
+    list.innerHTML = '<p style="color:var(--text-dim);padding:8px;font-size:.78rem;">Loading…</p>';
     openModal('modal-hint');
+
+    const index = Examples.getIndex();
+    list.innerHTML = '';
+
+    if (index.length === 0) {
+      list.innerHTML = '<p style="color:var(--text-dim);padding:8px;font-size:.78rem;">No examples found.</p>';
+      return;
+    }
+
+    index.forEach(item => {
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:8px;padding:2px 0;';
+
+      const lbl = document.createElement('span');
+      lbl.style.fontSize = '.8rem';
+      lbl.textContent = Examples.nameFor(item);
+
+      const btn = document.createElement('button');
+      btn.className = 'btn';
+      btn.style.cssText = 'padding:2px 8px;font-size:.74rem;flex-shrink:0;';
+      btn.textContent = I18n.t('modals.hint.load');
+
+      btn.onclick = async () => {
+        btn.disabled = true;
+        btn.textContent = '…';
+        try {
+          const code = await Examples.fetchCode(item);
+          if (S.isProfi && S.cmProfi) {
+            const full = S.cmProfi.getValue();
+            const idx  = full.indexOf(SYSTEM_MARKER);
+            S.cmProfi.setValue(idx > -1
+              ? full.slice(0, idx) + SYSTEM_MARKER + '\n' + code
+              : code);
+          } else {
+            S.cmMain.setValue(code);
+          }
+          closeModal('modal-hint');
+        } catch(e) {
+          btn.textContent = '✗';
+          console.error('Failed to load example:', e);
+          setTimeout(() => {
+            btn.disabled = false;
+            btn.textContent = I18n.t('modals.hint.load');
+          }, 1500);
+        }
+      };
+
+      row.append(lbl, btn);
+      list.appendChild(row);
+    });
   });
   document.getElementById('hint-close').addEventListener('click', () => closeModal('modal-hint'));
   bgClose('modal-hint');
@@ -1427,6 +1436,9 @@ window.addEventListener('load', async () => {
   // I18n must be first — everything else depends on translations
   await I18n.init();
   I18n.applyDOM();
+
+  // Load example index in parallel with other setup
+  await Examples.load();
 
   Theme.restore();
   Canvas.init();
