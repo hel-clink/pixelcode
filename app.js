@@ -145,6 +145,8 @@ const I18n = (() => {
   function _updateDynamic() {
     const pill = document.getElementById('mode-pill');
     if (pill) pill.textContent = S.isProfi ? t('modeBadge.profi') : t('modeBadge.beginner');
+    const btnProfi = document.getElementById('btn-profi');
+    if (btnProfi) btnProfi.textContent = S.isProfi ? t('header.beginnerMode') : t('header.profiMode');
     Status.refresh();
   }
 
@@ -214,12 +216,15 @@ def draw(frame):
 `},
 ];
 
-const DEFAULT_CODE =
-`# ' + I18n.t('console.welcome') + '
-# Tipp: setPixel(x, y, r, g, b) setzt einen Pixel.
-
-setPixel(10, 10, 255, 0, 0)
-`;
+/** Returns the default starter code in the current language */
+function defaultCode() {
+  return (
+    '# ' + I18n.t('editor.defaultComment') + '\n' +
+    '# ' + I18n.t('editor.defaultTip') + '\n' +
+    '\n' +
+    'setPixel(10, 10, 255, 0, 0)\n'
+  );
+}
 
 /* ════════════════════════════════════════
    CANVAS MODULE
@@ -659,7 +664,7 @@ function cmBaseCfg() {
 
 function initEditors() {
   S.cmMain = CodeMirror.fromTextArea(document.getElementById('cm-editor'), cmBaseCfg());
-  S.cmMain.setValue(DEFAULT_CODE);
+  S.cmMain.setValue(defaultCode());
   S.cmMain.setSize('100%', '100%');
 
   S.cmMain.on('change', () => {
@@ -1171,7 +1176,7 @@ const Files = (() => {
     if (!name.endsWith('.py')) name += '.py';
     if (S.activeFileId !== null && S.cmMain)
       await DB.save(S.activeFileId, currentName(), S.cmMain.getValue(), false);
-    const code = '# ' + name + '\n\nsetPixel(10, 10, 255, 0, 0)\n';
+    const code = '# ' + name + '\n# ' + I18n.t('editor.defaultTip') + '\n\nsetPixel(10, 10, 255, 0, 0)\n';
     const id   = await DB.save(null, name, code, true);
     S.activeFileId = id;
     if (S.cmMain) S.cmMain.setValue(code);
@@ -1442,7 +1447,8 @@ window.addEventListener('load', async () => {
       await Files.open(files[0].id);
     } else {
       const defaultName = I18n.t('files.defaultName');
-      const id = await DB.save(null, defaultName, DEFAULT_CODE, true);
+      const code = defaultCode();
+      const id = await DB.save(null, defaultName, code, true);
       S.activeFileId = id;
       document.getElementById('current-filename').textContent = '– ' + defaultName;
     }

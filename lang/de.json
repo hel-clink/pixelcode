@@ -1,138 +1,138 @@
 {
   "lang": "de",
-
   "appTitle": "PixelCode",
-
   "header": {
-    "run":          "▶ Ausführen",
-    "stop":         "■ Stop",
-    "clearCanvas":  "Leinwand",
+    "run": "▶ Ausführen",
+    "stop": "■ Stop",
+    "clearCanvas": "Leinwand",
     "clearConsole": "Konsole",
-    "fps":          "FPS",
-    "auto":         "Auto",
-    "profiMode":    "⚙ Profi-Modus",
+    "fps": "FPS",
+    "auto": "Auto",
+    "profiMode": "⚙ Profi-Modus",
     "beginnerMode": "⚙ Einsteiger-Modus",
-    "layout":       "☰ Layout",
-    "lightMode":    "Light Mode",
-    "darkMode":     "Dark Mode"
+    "layout": "☰ Layout",
+    "lightMode": "Light Mode",
+    "darkMode": "Dark Mode"
   },
-
   "canvasSizes": {
     "custom": "Eigene…"
   },
-
   "panels": {
-    "files":   "📁 Dateien",
-    "canvas":  "🖼 Leinwand",
+    "files": "📁 Dateien",
+    "canvas": "🖼 Leinwand",
     "console": "📟 Konsole",
-    "editor":  "✏ Editor",
-    "help":    "📖 Hilfe & Tutorial"
+    "editor": "✏ Editor",
+    "help": "📖 Hilfe & Tutorial"
   },
-
   "files": {
-    "new":     "+ Neu",
-    "import":  "⬆ Import",
-    "export":  "⬇ .py",
-    "rename":  "Umbenennen",
-    "delete":  "Löschen",
+    "new": "+ Neu",
+    "import": "⬆ Import",
+    "export": "⬇ .py",
+    "rename": "Umbenennen",
+    "delete": "Löschen",
     "confirmDelete": "\"{name}\" löschen?",
-    "defaultName":   "mein-erstes-programm.py"
+    "defaultName": "mein-erstes-programm.py"
   },
-
   "export": {
-    "png":   "🖼 PNG speichern",
+    "png": "🖼 PNG speichern",
     "video": "🎥 Video aufnehmen…",
-    "rec":   "REC"
+    "rec": "REC"
   },
-
   "editor": {
-    "examples":   "💡 Beispiele",
-    "bgBanner":   "ℹ️ Im Hintergrund läuft noch mehr Code.",
-    "profiLink":  "Profi-Modus →",
-    "profiDivider": "─── dein Code beginnt hier ───────────────────────"
+    "examples": "💡 Beispiele",
+    "bgBanner": "ℹ️ Im Hintergrund läuft noch mehr Code.",
+    "profiLink": "Profi-Modus →",
+    "profiDivider": "─── dein Code beginnt hier ───────────────────────",
+    "defaultComment": "Willkommen bei PixelCode!",
+    "defaultTip": "Tipp: setPixel(x, y, r, g, b) setzt einen Pixel."
   },
-
   "help": {
     "loading": "Lade…",
     "notFound": "Hilfe-Dateien nicht gefunden.\nBitte über einen lokalen Server oder GitHub/GitLab Pages öffnen."
   },
-
   "modeBadge": {
     "beginner": "Einsteiger",
-    "profi":    "Profi"
+    "profi": "Profi"
   },
-
   "status": {
     "running": "● Running",
-    "error":   "● Fehler (läuft weiter)",
+    "error": "● Fehler (läuft weiter)",
     "stopped": "○ Gestoppt"
   },
-
   "console": {
-    "welcome":     "Willkommen bei PixelCode!",
-    "running":     "→ Ausführen…",
-    "done":        "✓ Fertig.",
-    "stopped":     "■ Gestoppt.",
+    "welcome": "Willkommen bei PixelCode!",
+    "running": "→ Ausführen…",
+    "done": "✓ Fertig.",
+    "stopped": "■ Gestoppt.",
     "animRunning": "▶ Animation läuft…",
     "loopRunning": "▶ Endlos-Modus…",
-    "profiOn":     "⚙ Profi-Modus aktiv.",
-    "profiOff":    "Zurück im Einsteiger-Modus.",
-    "recStart":    "⏺ Aufnahme ({sec}s)…",
-    "recDone":     "✓ Video gespeichert ({sec}s).",
+    "profiOn": "⚙ Profi-Modus aktiv.",
+    "profiOff": "Zurück im Einsteiger-Modus.",
+    "recStart": "⏺ Aufnahme ({sec}s)…",
+    "recDone": "✓ Video gespeichert ({sec}s).",
     "recUnsupported": "Video-Export nicht unterstützt.",
-    "dbUnavailable":  "⚠ IndexedDB nicht verfügbar – Dateien werden nicht gespeichert.",
-    "workerError":    "Worker-Fehler: {msg}",
-    "timeout":        "⚠ Timeout ({sec}s) – Endlosschleife erkannt. Worker gestoppt.",
-    "frameTimeout":   "⚠ Frame-Timeout – Endlosschleife in draw()? Worker neu gestartet.",
-    "error":          "Fehler: "
+    "dbUnavailable": "⚠ IndexedDB nicht verfügbar – Dateien werden nicht gespeichert.",
+    "workerError": "Worker-Fehler: {msg}",
+    "timeout": "⚠ Timeout ({sec}s) – Endlosschleife erkannt. Worker gestoppt.",
+    "frameTimeout": "⚠ Frame-Timeout – Endlosschleife in draw()? Worker neu gestartet.",
+    "error": "Fehler: "
   },
-
   "modals": {
     "layout": {
-      "title":       "Layout anpassen",
-      "files":       "Datei-Manager",
+      "title": "Layout anpassen",
+      "files": "Datei-Manager",
       "canvasPanel": "Leinwand & Konsole",
-      "tutorial":    "Tutorial-Panel",
-      "customSize":  "Eigene Leinwandgröße",
-      "close":       "Schließen",
-      "ok":          "OK"
+      "tutorial": "Tutorial-Panel",
+      "customSize": "Eigene Leinwandgröße",
+      "close": "Schließen",
+      "ok": "OK"
     },
     "hint": {
-      "title":  "💡 Beispiel-Code laden",
-      "load":   "Laden",
+      "title": "💡 Beispiel-Code laden",
+      "load": "Laden",
       "cancel": "Abbrechen"
     },
     "newFile": {
-      "title":       "Neue Datei erstellen",
+      "title": "Neue Datei erstellen",
       "placeholder": "mein-programm.py",
-      "create":      "Erstellen",
-      "cancel":      "Abbrechen"
+      "create": "Erstellen",
+      "cancel": "Abbrechen"
     },
     "video": {
-      "title":      "Video aufnehmen",
-      "duration":   "Aufnahmedauer",
-      "seconds":    "Sekunden",
-      "hint":       "Gespeichert als WebM. Die Aufnahme startet sofort.",
-      "record":     "⏺ Aufnehmen",
-      "cancel":     "Abbrechen"
+      "title": "Video aufnehmen",
+      "duration": "Aufnahmedauer",
+      "seconds": "Sekunden",
+      "hint": "Gespeichert als WebM. Die Aufnahme startet sofort.",
+      "record": "⏺ Aufnehmen",
+      "cancel": "Abbrechen"
     },
     "profi": {
-      "confirm":  "Profi-Modus zeigt den vollständigen Code – auch das System-Gerüst.\nProfi-Modus aktivieren?",
-      "revert":   "Zurück zum Einsteiger-Modus?\nÄnderungen am System-Code gehen verloren."
+      "confirm": "Profi-Modus zeigt den vollständigen Code – auch das System-Gerüst.\nProfi-Modus aktivieren?",
+      "revert": "Zurück zum Einsteiger-Modus?\nÄnderungen am System-Code gehen verloren."
     }
   },
-
   "examples": [
-    { "name": "🔴 Einzelner Pixel" },
-    { "name": "♟ Schachbrett" },
-    { "name": "🌈 Farbverlauf" },
-    { "name": "⭕ Kreis" },
-    { "name": "✨ Animation: Welle" },
-    { "name": "🌌 Animation: Sterne" }
+    {
+      "name": "🔴 Einzelner Pixel"
+    },
+    {
+      "name": "♟ Schachbrett"
+    },
+    {
+      "name": "🌈 Farbverlauf"
+    },
+    {
+      "name": "⭕ Kreis"
+    },
+    {
+      "name": "✨ Animation: Welle"
+    },
+    {
+      "name": "🌌 Animation: Sterne"
+    }
   ],
-
   "helpNav": {
-    "ref":  "📋 Funktions-Referenz",
+    "ref": "📋 Funktions-Referenz",
     "tut1": "Kap. 1: Erster Pixel",
     "tut2": "Kap. 2: Farben & Schleifen",
     "tut3": "Kap. 3: Bilder & Muster",
