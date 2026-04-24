@@ -55,7 +55,104 @@ const S = {
   recording: false,
   /* skulpt worker */
   worker: null,
+  /* i18n */
+  lang: null,
 };
+
+/* ════════════════════════════════════════
+   I18N — Internationalization
+   Loads JSON from lang/<code>.json.
+   Priority: localStorage → navigator.language → 'en'
+════════════════════════════════════════ */
+const I18n = (() => {
+  const STORAGE_KEY = 'pixelcode-lang';
+  let current = {};
+  let available = [];
+
+  function _preferredCode() {
+    try { const s = localStorage.getItem(STORAGE_KEY); if (s) return s; } catch(e) {}
+    return (navigator.language || 'en').slice(0, 2).toLowerCase();
+  }
+
+  async function init() {
+    try {
+      const r = await fetch('lang/index.json');
+      available = await r.json();
+    } catch(e) {
+      available = [{ code: 'en', label: 'English', flag: '\u{1F1EC}\u{1F1E7}' }];
+    }
+    const preferred = _preferredCode();
+    const code = available.find(l => l.code === preferred) ? preferred : (available[0] ? available[0].code : 'en');
+    await _load(code);
+    _buildSelector();
+  }
+
+  async function _load(code) {
+    try {
+      const r = await fetch('lang/' + code + '.json');
+      if (!r.ok) throw new Error(r.status);
+      current = await r.json();
+      S.lang = current;
+    } catch(e) {
+      if (code !== 'en') {
+        try { const r = await fetch('lang/en.json'); current = await r.json(); S.lang = current; } catch(e2) {}
+      }
+    }
+    try { localStorage.setItem(STORAGE_KEY, current.lang || code); } catch(e) {}
+  }
+
+  /** Get translated string by dot-path. Supports {var} substitution. */
+  function t(path, vars) {
+    const parts = path.split('.');
+    let val = current;
+    for (const p of parts) { if (val == null) break; val = val[p]; }
+    if (val == null || typeof val !== 'string') return path;
+    if (vars) return val.replace(/\{(\w+)\}/g, (_, k) => vars[k] != null ? vars[k] : '{' + k + '}');
+    return val;
+  }
+
+  /** Apply data-i18n attributes in the DOM */
+  function applyDOM() {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.dataset.i18n, attr = el.dataset.i18nAttr;
+      if (attr) el.setAttribute(attr, t(key));
+      else el.textContent = t(key);
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+      el.placeholder = t(el.dataset.i18nPlaceholder);
+    });
+  }
+
+  function _buildSelector() {
+    const sel = document.getElementById('lang-select');
+    if (!sel) return;
+    sel.innerHTML = '';
+    available.forEach(l => {
+      const opt = document.createElement('option');
+      opt.value = l.code;
+      opt.textContent = l.flag + ' ' + l.label;
+      if (l.code === (current.lang || 'en')) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    sel.addEventListener('change', async function() {
+      await _load(this.value);
+      applyDOM();
+      Help.reload();
+      _updateDynamic();
+    });
+  }
+
+  function _updateDynamic() {
+    const pill = document.getElementById('mode-pill');
+    if (pill) pill.textContent = S.isProfi ? t('modeBadge.profi') : t('modeBadge.beginner');
+    Status.refresh();
+  }
+
+  function currentCode() { return current.lang || 'en'; }
+
+  return { init, t, applyDOM, currentCode };
+})();
+
 
 /* ════════════════════════════════════════
    EXAMPLES
@@ -118,7 +215,7 @@ def draw(frame):
 ];
 
 const DEFAULT_CODE =
-`# Willkommen bei PixelCode!
+`# ' + I18n.t('console.welcome') + '
 # Tipp: setPixel(x, y, r, g, b) setzt einen Pixel.
 
 setPixel(10, 10, 255, 0, 0)
@@ -273,10 +370,14 @@ const Status = (() => {
     // state: 'running' | 'error' | 'stopped'
     if (!el) return;
     el.className = 'run-status ' + state;
-    const labels = { running: '● Running', error: '● Error (läuft weiter)', stopped: '○ Gestoppt' };
+    const labels = { running: I18n.t('status.running'), error: I18n.t('status.error'), stopped: I18n.t('status.stopped') };
     el.textContent = labels[state] || '';
   }
-  return { init, set };
+  let _cur = 'stopped';
+  function refresh() { set(_cur); }
+  const _origSet = set;
+  function set(state) { _cur = state; _origSet(state); }
+  return { init, set, refresh };
 })();
 
 /* ════════════════════════════════════════
@@ -362,7 +463,7 @@ const Runner = (() => {
     _halt();
     Con.clear();
     Errors.clearMarker();
-    Con.log('\u2192 Ausf\u00fchren\u2026', 'con-sys');
+    Con.log(I18n.t('console.running'), 'con-sys');
     Status.set('running');
     _setBtns(true);
     S.running = true;
@@ -374,7 +475,7 @@ const Runner = (() => {
 
   function stop(log = true) {
     _halt();
-    if (log) Con.log('\u25a0 Gestoppt.', 'con-sys');
+    if (log) Con.log(I18n.t('console.stopped'), 'con-sys');
     Status.set('stopped');
   }
 
@@ -383,7 +484,7 @@ const Runner = (() => {
     S.worker = new Worker('lib/skulpt-worker.js');
     S.worker.onmessage = _onMsg;
     S.worker.onerror   = e => {
-      Con.err('Worker-Fehler: ' + (e.message || e));
+      Con.err(I18n.t('console.workerError', {msg: e.message || e}));
       Status.set('error');
       _scheduleRetry();
     };
@@ -394,10 +495,10 @@ const Runner = (() => {
     if (S.worker)  { S.worker.terminate(); S.worker = null; }
   }
 
-  function _armTimeout(label) {
+  function _armTimeout(msg) {
     if (killTimer) clearTimeout(killTimer);
     killTimer = setTimeout(() => {
-      Con.err('\u26a0 Timeout (' + (CFG.EXEC_TIMEOUT_MS/1000) + 's) \u2013 ' + label + '. Worker gestoppt.');
+      Con.err(msg);
       Status.set('error');
       _killWorker();
       _scheduleRetry();
@@ -406,7 +507,7 @@ const Runner = (() => {
 
   function _runInitial() {
     if (!S.running || !S.worker) return;
-    _armTimeout('Endlosschleife erkannt');
+    _armTimeout(I18n.t('console.timeout', {sec: CFG.EXEC_TIMEOUT_MS/1000}));
     S.worker.postMessage({ type: 'run', code: getUserCode(), canvasW: S.W, canvasH: S.H, frame: 0 });
   }
 
@@ -431,10 +532,10 @@ const Runner = (() => {
     if (m.type === 'done') {
       // static code done, start loop
       if (!S.hasDraw) {
-        Con.log('\u25b6 Endlos-Modus\u2026', 'con-sys');
+        Con.log(I18n.t('console.loopRunning'), 'con-sys');
         _scheduleFrame();
       } else {
-        Con.log('\u25b6 Animation l\u00e4uft\u2026', 'con-sys');
+        Con.log(I18n.t('console.animRunning'), 'con-sys');
       }
     }
   }
@@ -452,7 +553,7 @@ const Runner = (() => {
   function _sendFrame() {
     if (!S.running) return;
     if (!S.worker) { _spawnWorker(); _runInitial(); return; }
-    _armTimeout(S.hasDraw ? 'Endlosschleife in draw()' : 'Endlosschleife erkannt');
+    _armTimeout(I18n.t('console.frameTimeout'));
     if (S.hasDraw) {
       S.worker.postMessage({ type: 'frame', canvasW: S.W, canvasH: S.H, frame: S.frameCount });
     } else {
@@ -498,7 +599,7 @@ const VideoExport = (() => {
     const canvasEl = Canvas.getEl();
     let stream;
     try { stream = canvasEl.captureStream(S.fps); }
-    catch (e) { Con.err('Video-Export nicht unterstützt.'); return; }
+    catch (e) { Con.err(I18n.t('console.recUnsupported')); return; }
 
     const mime = MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
       ? 'video/webm;codecs=vp9' : 'video/webm';
@@ -513,12 +614,12 @@ const VideoExport = (() => {
       URL.revokeObjectURL(url);
       S.recording = false;
       document.getElementById('rec-indicator').classList.remove('recording');
-      Con.log('✓ Video gespeichert (' + sec + 's).', 'con-ok');
+      Con.log(I18n.t('console.recDone', {sec}), 'con-ok');
     };
     S.mediaRec.start();
     S.recording = true;
     document.getElementById('rec-indicator').classList.add('recording');
-    Con.log('⏺ Aufnahme (' + sec + 's)…', 'con-sys');
+    Con.log(I18n.t('console.recStart', {sec}), 'con-sys');
     stopTimer = setTimeout(() => S.mediaRec && S.mediaRec.stop(), sec * 1000);
   }
 
@@ -582,7 +683,7 @@ function sysCodeDisplay() {
 
 const Profi = (() => {
   function on() {
-    if (!confirm('Profi-Modus zeigt den vollständigen Code.\nAktivieren?')) return;
+    if (!confirm(I18n.t('modals.profi.confirm'))) return;
     S.isProfi = true;
     const user = S.cmMain.getValue();
     const full = sysCodeDisplay() + SYSTEM_MARKER + '\n' + user;
@@ -600,15 +701,15 @@ const Profi = (() => {
     }
     S.cmProfi.setValue(full);
 
-    document.getElementById('mode-pill').textContent = 'Profi';
+    document.getElementById('mode-pill').textContent = I18n.t('modeBadge.profi');
     document.getElementById('mode-pill').classList.add('profi');
-    document.getElementById('btn-profi').textContent = '⚙ Einsteiger';
-    Con.log('⚙ Profi-Modus aktiv.', 'con-sys');
+    document.getElementById('btn-profi').textContent = I18n.t('header.beginnerMode');
+    Con.log(I18n.t('console.profiOn'), 'con-sys');
     setTimeout(() => S.cmProfi && S.cmProfi.refresh(), 50);
   }
 
   function off() {
-    if (!confirm('Zurück zum Einsteiger-Modus?\nÄnderungen am System-Code gehen verloren.')) return;
+    if (!confirm(I18n.t('modals.profi.revert'))) return;
     S.isProfi = false;
     if (S.cmProfi) {
       const full = S.cmProfi.getValue();
@@ -619,10 +720,10 @@ const Profi = (() => {
     document.getElementById('profi-divider').style.display  = 'none';
     document.getElementById('bg-banner').style.display      = 'flex';
     document.getElementById('editor-wrap').style.display    = 'flex';
-    document.getElementById('mode-pill').textContent = 'Einsteiger';
+    document.getElementById('mode-pill').textContent = I18n.t('modeBadge.beginner');
     document.getElementById('mode-pill').classList.remove('profi');
-    document.getElementById('btn-profi').textContent = '⚙ Profi-Modus';
-    Con.log('Einsteiger-Modus.', 'con-sys');
+    document.getElementById('btn-profi').textContent = I18n.t('header.profiMode');
+    Con.log(I18n.t('console.profiOff'), 'con-sys');
     setTimeout(() => S.cmMain && S.cmMain.refresh(), 50);
   }
 
@@ -866,9 +967,9 @@ window.Markdown = Markdown; // needed for inline onclick in rendered MD
 ════════════════════════════════════════ */
 const Help = (() => {
   let index = [];
+  let currentId = null;
 
   async function init() {
-    const body = document.getElementById('tutorial-body');
     try {
       const r = await fetch(CFG.HELP_INDEX);
       if (!r.ok) throw new Error(r.status);
@@ -876,9 +977,17 @@ const Help = (() => {
       _buildNav();
       await _load(index[0].id);
     } catch (e) {
-      body.innerHTML = '<p style="color:var(--text-dim);padding:10px;">Hilfe-Dateien nicht gefunden.<br>' +
-        'Bitte über einen lokalen Server oder GitHub Pages öffnen.</p>';
+      document.getElementById('tutorial-body').innerHTML =
+        '<p style="color:var(--text-dim);padding:10px;">' +
+        I18n.t('help.notFound').replace('\n', '<br>') + '</p>';
     }
+  }
+
+  /** Called by I18n when language changes — reload current page in new language */
+  function reload() {
+    _buildNav();
+    if (currentId) _load(currentId);
+    else if (index.length) _load(index[0].id);
   }
 
   function _buildNav() {
@@ -887,7 +996,8 @@ const Help = (() => {
     index.forEach(item => {
       const btn = document.createElement('button');
       btn.className   = 'help-nav-item';
-      btn.textContent = item.title;
+      // Title comes from i18n, keyed by item.id
+      btn.textContent = I18n.t('helpNav.' + item.id);
       btn.dataset.id  = item.id;
       btn.addEventListener('click', () => _load(item.id));
       nav.appendChild(btn);
@@ -897,21 +1007,33 @@ const Help = (() => {
   async function _load(id) {
     const item = index.find(i => i.id === id);
     if (!item) return;
-    document.querySelectorAll('.help-nav-item').forEach(b =>
-      b.classList.toggle('active', b.dataset.id === id)
-    );
+    currentId = id;
+    document.querySelectorAll('.help-nav-item').forEach(b => {
+      b.classList.toggle('active', b.dataset.id === id);
+      b.textContent = I18n.t('helpNav.' + b.dataset.id);
+    });
     const body = document.getElementById('tutorial-body');
+    // Load from language-specific subfolder: help/<lang>/ref.md
+    const lang = I18n.currentCode();
+    const url  = 'help/' + lang + '/' + item.file;
     try {
-      const r  = await fetch('help/' + item.file);
+      const r  = await fetch(url);
       if (!r.ok) throw new Error(r.status);
       const md = await r.text();
       body.innerHTML = Markdown.render(md);
     } catch (e) {
-      body.innerHTML = `<p style="color:var(--red);padding:10px;">Fehler beim Laden: help/${item.file}</p>`;
+      // Fallback to English
+      try {
+        const r2 = await fetch('help/en/' + item.file);
+        if (!r2.ok) throw new Error(r2.status);
+        body.innerHTML = Markdown.render(await r2.text());
+      } catch (e2) {
+        body.innerHTML = '<p style="color:var(--red);padding:10px;">Error loading: ' + url + '</p>';
+      }
     }
   }
 
-  return { init };
+  return { init, reload };
 })();
 
 /* ════════════════════════════════════════
@@ -983,14 +1105,14 @@ const Files = (() => {
       name.addEventListener('dblclick', e => { e.stopPropagation(); _rename(item, name, f); });
 
       const ren = document.createElement('button');
-      ren.className = 'file-btn'; ren.textContent = '✎'; ren.title = 'Umbenennen';
+      ren.className = 'file-btn'; ren.textContent = '✎'; ren.title = I18n.t('files.rename');
       ren.addEventListener('click', e => { e.stopPropagation(); _rename(item, name, f); });
 
       const del = document.createElement('button');
-      del.className = 'file-btn del'; del.textContent = '✕'; del.title = 'Löschen';
+      del.className = 'file-btn del'; del.textContent = '✕'; del.title = I18n.t('files.delete');
       del.addEventListener('click', async e => {
         e.stopPropagation();
-        if (!confirm('"' + f.name + '" löschen?')) return;
+        if (!confirm(I18n.t('files.confirmDelete', {name: f.name}))) return;
         await DB.del(f.id);
         if (S.activeFileId === f.id) { S.activeFileId = null; _setTitle(''); }
         render();
@@ -1210,13 +1332,16 @@ function wireEvents() {
   document.getElementById('btn-hint').addEventListener('click', () => {
     const list = document.getElementById('hint-list');
     list.innerHTML = '';
-    EXAMPLES.forEach(ex => {
+    EXAMPLES.forEach((ex, idx) => {
       const row = document.createElement('div');
       row.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:8px;';
-      const lbl = document.createElement('span'); lbl.style.fontSize = '.8rem'; lbl.textContent = ex.name;
+      const lbl = document.createElement('span'); lbl.style.fontSize = '.8rem';
+      // Use translated name from lang JSON if available, fallback to built-in name
+      const translated = I18n.t('examples.' + idx + '.name');
+      lbl.textContent = (translated && !translated.startsWith('examples.')) ? translated : ex.name;
       const btn = document.createElement('button'); btn.className = 'btn';
       btn.style.cssText = 'padding:2px 8px;font-size:.74rem;';
-      btn.textContent = 'Laden';
+      btn.textContent = I18n.t('modals.hint.load');
       btn.onclick = () => {
         if (S.isProfi && S.cmProfi) {
           const full = S.cmProfi.getValue(), idx = full.indexOf(SYSTEM_MARKER);
@@ -1285,6 +1410,10 @@ function wireEvents() {
    INIT
 ════════════════════════════════════════ */
 window.addEventListener('load', async () => {
+  // I18n must be first — everything else depends on translations
+  await I18n.init();
+  I18n.applyDOM();
+
   Theme.restore();
   Canvas.init();
   Con.init();
@@ -1306,13 +1435,14 @@ window.addEventListener('load', async () => {
       files.sort((a, b) => b.updatedAt - a.updatedAt);
       await Files.open(files[0].id);
     } else {
-      const id = await DB.save(null, 'mein-erstes-programm.py', DEFAULT_CODE, true);
+      const defaultName = I18n.t('files.defaultName');
+      const id = await DB.save(null, defaultName, DEFAULT_CODE, true);
       S.activeFileId = id;
-      document.getElementById('current-filename').textContent = '– mein-erstes-programm.py';
+      document.getElementById('current-filename').textContent = '– ' + defaultName;
     }
     await Files.render();
   } catch (err) {
-    Con.log('⚠ IndexedDB nicht verfügbar – Dateien werden nicht gespeichert.', 'con-warn');
+    Con.log(I18n.t('console.dbUnavailable'), 'con-warn');
     console.error('DB:', err);
   }
 

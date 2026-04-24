@@ -1,7 +1,7 @@
 [
-  { "id": "ref",  "title": "📋 Funktions-Referenz", "file": "ref.md" },
-  { "id": "tut1", "title": "Kap. 1: Erster Pixel",   "file": "tut1.md" },
-  { "id": "tut2", "title": "Kap. 2: Farben & Schleifen", "file": "tut2.md" },
-  { "id": "tut3", "title": "Kap. 3: Bilder & Muster", "file": "tut3.md" },
-  { "id": "tut4", "title": "Kap. 4: Animation",       "file": "tut4.md" }
+  { "id": "ref",  "file": "ref.md"  },
+  { "id": "tut1", "file": "tut1.md" },
+  { "id": "tut2", "file": "tut2.md" },
+  { "id": "tut3", "file": "tut3.md" },
+  { "id": "tut4", "file": "tut4.md" }
 ]

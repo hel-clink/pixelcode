@@ -1,0 +1,141 @@
+{
+  "lang": "en",
+
+  "appTitle": "PixelCode",
+
+  "header": {
+    "run":          "▶ Run",
+    "stop":         "■ Stop",
+    "clearCanvas":  "Clear Canvas",
+    "clearConsole": "Clear Console",
+    "fps":          "FPS",
+    "auto":         "Auto",
+    "profiMode":    "⚙ Expert Mode",
+    "beginnerMode": "⚙ Beginner Mode",
+    "layout":       "☰ Layout",
+    "lightMode":    "Light Mode",
+    "darkMode":     "Dark Mode"
+  },
+
+  "canvasSizes": {
+    "custom": "Custom…"
+  },
+
+  "panels": {
+    "files":   "📁 Files",
+    "canvas":  "🖼 Canvas",
+    "console": "📟 Console",
+    "editor":  "✏ Editor",
+    "help":    "📖 Help & Tutorial"
+  },
+
+  "files": {
+    "new":     "+ New",
+    "import":  "⬆ Import",
+    "export":  "⬇ .py",
+    "rename":  "Rename",
+    "delete":  "Delete",
+    "confirmDelete": "Delete \"{name}\"?",
+    "defaultName":   "my-first-program.py"
+  },
+
+  "export": {
+    "png":   "🖼 Save PNG",
+    "video": "🎥 Record Video…",
+    "rec":   "REC"
+  },
+
+  "editor": {
+    "examples":   "💡 Examples",
+    "bgBanner":   "ℹ️ More code runs in the background.",
+    "profiLink":  "Expert Mode →",
+    "profiDivider": "─── your code starts here ───────────────────────"
+  },
+
+  "help": {
+    "loading": "Loading…",
+    "notFound": "Help files not found.\nPlease open via a local server or GitHub/GitLab Pages."
+  },
+
+  "modeBadge": {
+    "beginner": "Beginner",
+    "profi":    "Expert"
+  },
+
+  "status": {
+    "running": "● Running",
+    "error":   "● Error (continuing)",
+    "stopped": "○ Stopped"
+  },
+
+  "console": {
+    "welcome":     "Welcome to PixelCode!",
+    "running":     "→ Running…",
+    "done":        "✓ Done.",
+    "stopped":     "■ Stopped.",
+    "animRunning": "▶ Animation running…",
+    "loopRunning": "▶ Loop mode…",
+    "profiOn":     "⚙ Expert mode active.",
+    "profiOff":    "Back to beginner mode.",
+    "recStart":    "⏺ Recording ({sec}s)…",
+    "recDone":     "✓ Video saved ({sec}s).",
+    "recUnsupported": "Video export not supported in this browser.",
+    "dbUnavailable":  "⚠ IndexedDB unavailable – files will not be saved.",
+    "workerError":    "Worker error: {msg}",
+    "timeout":        "⚠ Timeout ({sec}s) – infinite loop detected. Worker stopped.",
+    "frameTimeout":   "⚠ Frame timeout – infinite loop in draw()? Worker restarted.",
+    "error":          "Error: "
+  },
+
+  "modals": {
+    "layout": {
+      "title":       "Customize Layout",
+      "files":       "File Manager",
+      "canvasPanel": "Canvas & Console",
+      "tutorial":    "Tutorial Panel",
+      "customSize":  "Custom Canvas Size",
+      "close":       "Close",
+      "ok":          "OK"
+    },
+    "hint": {
+      "title":  "💡 Load Example Code",
+      "load":   "Load",
+      "cancel": "Cancel"
+    },
+    "newFile": {
+      "title":       "Create New File",
+      "placeholder": "my-program.py",
+      "create":      "Create",
+      "cancel":      "Cancel"
+    },
+    "video": {
+      "title":      "Record Video",
+      "duration":   "Duration",
+      "seconds":    "seconds",
+      "hint":       "Saved as WebM. Recording starts immediately.",
+      "record":     "⏺ Record",
+      "cancel":     "Cancel"
+    },
+    "profi": {
+      "confirm":  "Expert mode shows the full code including the system scaffold.\nActivate Expert Mode?",
+      "revert":   "Return to Beginner Mode?\nChanges to system code will be lost."
+    }
+  },
+
+  "examples": [
+    { "name": "🔴 Single Pixel" },
+    { "name": "♟ Chessboard" },
+    { "name": "🌈 Color Gradient" },
+    { "name": "⭕ Circle" },
+    { "name": "✨ Animation: Wave" },
+    { "name": "🌌 Animation: Stars" }
+  ],
+
+  "helpNav": {
+    "ref":  "📋 Function Reference",
+    "tut1": "Ch. 1: First Pixel",
+    "tut2": "Ch. 2: Colors & Loops",
+    "tut3": "Ch. 3: Images & Patterns",
+    "tut4": "Ch. 4: Animation"
+  }
+}
