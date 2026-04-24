@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PixelCode</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="lib/codemirror.min.css">
+<link rel="stylesheet" href="lib/dracula.min.css">
+<link rel="stylesheet" href="lib/show-hint.min.css">
+</head>
+<body>
+
+<header id="hdr">
+  <div id="logo">Pixel<em>Code</em></div>
+  <div class="hsep"></div>
+  <button class="btn run" id="btn-run">&#9654; Ausführen</button>
+  <button class="btn stop" id="btn-stop" disabled>&#9632; Stop</button>
+  <div id="run-status" class="run-status stopped">○ Gestoppt</div>
+  <div class="hsep"></div>
+  <button class="btn" id="btn-clear-canvas">Leinwand</button>
+  <button class="btn" id="btn-clear-console">Konsole</button>
+  <div class="hsep"></div>
+  <label class="lbl">&#128208;
+    <select class="sel" id="canvas-size-sel">
+      <option value="64">64x64</option>
+      <option value="128">128x128</option>
+      <option value="256" selected>256x256</option>
+      <option value="320x240">320x240</option>
+      <option value="custom">Eigene...</option>
+    </select>
+  </label>
+  <div id="fps-row">
+    <input type="range" id="fps-slider" min="1" max="60" value="30">
+    <span id="fps-val">30</span> FPS
+  </div>
+  <div class="hsep"></div>
+  <label class="lbl"><input type="checkbox" id="chk-autocomplete"> Auto</label>
+  <div class="hgrow"></div>
+  <div id="mode-pill">Einsteiger</div>
+  <button id="btn-theme" title="Light Mode">&#127769;</button>
+  <button class="btn" id="btn-profi">Profi-Modus</button>
+  <button class="btn" id="btn-layout">Layout</button>
+</header>
+
+<div id="workspace">
+
+  <div class="col" id="col-files">
+    <div class="panel" id="panel-files" style="flex:1;">
+      <div class="panel-hdr">
+        <b>Dateien</b>
+        <div class="phgrow"></div>
+        <button class="panel-collapse-btn" data-panel="panel-files">v</button>
+      </div>
+      <div class="panel-content">
+        <div id="file-list"></div>
+        <div id="file-toolbar">
+          <button class="btn" id="btn-file-new">+ Neu</button>
+          <button class="btn" id="btn-file-import">Import</button>
+          <button class="btn" id="btn-file-export">Export .py</button>
+        </div>
+        <input type="file" id="file-import-input" accept=".py" style="display:none">
+      </div>
+    </div>
+  </div>
+
+  <div class="resizer" id="res-files"></div>
+
+  <div class="col" id="col-left">
+    <div class="panel" id="panel-canvas" style="flex:3;min-height:0;">
+      <div class="panel-hdr">
+        <b>Leinwand</b>
+        <div class="phgrow"></div>
+        <span id="canvas-info" style="font-size:.7rem;color:var(--text-dim);">256x256</span>
+        <button class="panel-collapse-btn" data-panel="panel-canvas">v</button>
+      </div>
+      <div class="panel-content">
+        <div id="canvas-wrap">
+          <canvas id="pixel-canvas" width="256" height="256"></canvas>
+        </div>
+        <div id="export-toolbar">
+          <button class="btn" id="btn-export-png">PNG speichern</button>
+          <button class="btn" id="btn-export-video">Video aufnehmen...</button>
+          <div id="rec-indicator">
+            <div id="rec-dot"></div> REC
+            <button class="btn stop" id="btn-stop-rec" style="padding:1px 6px;font-size:.68rem;">Stop</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="panel" id="panel-console" style="flex:1;min-height:60px;">
+      <div class="panel-hdr">
+        <b>Konsole</b>
+        <div class="phgrow"></div>
+        <button class="panel-collapse-btn" data-panel="panel-console">v</button>
+      </div>
+      <div class="panel-content">
+        <div class="panel-body" id="console-body">
+          <div class="con-line con-sys">Willkommen bei PixelCode!</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="resizer" id="res-left"></div>
+
+  <div class="col" id="col-mid">
+    <div class="panel" id="panel-editor" style="flex:1;">
+      <div class="panel-hdr">
+        <b>Editor</b>
+        <span id="current-filename" style="color:var(--accent2);font-size:.72rem;margin-left:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px;"></span>
+        <div class="phgrow"></div>
+        <button class="btn" id="btn-hint" style="padding:2px 7px;font-size:.7rem;">Beispiele</button>
+        <button class="panel-collapse-btn" data-panel="panel-editor">v</button>
+      </div>
+      <div class="panel-content">
+        <div id="profi-top-wrap" style="display:none;flex-shrink:0;height:35%;overflow:hidden;">
+          <textarea id="profi-top-code"></textarea>
+        </div>
+        <div id="profi-divider">--- dein Code beginnt hier ---</div>
+        <div id="editor-wrap" style="flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden;">
+          <div style="flex:1;min-height:0;overflow:hidden;">
+            <textarea id="cm-editor"></textarea>
+          </div>
+          <div id="bg-banner">
+            <span>Im Hintergrund laeuft noch mehr Code.</span>
+            <a id="banner-profi-link">Profi-Modus</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="resizer" id="res-right"></div>
+
+  <div class="col" id="col-right">
+    <div class="panel" id="panel-help" style="flex:1;">
+      <div class="panel-hdr">
+        <b>Hilfe &amp; Tutorial</b>
+        <div class="phgrow"></div>
+        <button class="panel-collapse-btn" data-panel="panel-help">v</button>
+      </div>
+      <div class="panel-content">
+        <nav id="help-nav"></nav>
+        <div class="panel-body md-body" id="tutorial-body">
+          <p style="color:var(--text-dim);padding:10px;">Lade...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-layout">
+  <div class="modal-box">
+    <h3>Layout anpassen</h3>
+    <div class="modal-row"><span>Datei-Manager</span><input type="checkbox" id="toggle-files" checked></div>
+    <div class="modal-row"><span>Leinwand &amp; Konsole</span><input type="checkbox" id="toggle-left" checked></div>
+    <div class="modal-row"><span>Tutorial-Panel</span><input type="checkbox" id="toggle-right" checked></div>
+    <div class="modal-row">
+      <span>Eigene Groesse</span>
+      <span style="display:flex;gap:4px;align-items:center;">
+        <input type="number" id="custom-w" value="256" min="16" max="800" style="width:50px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:var(--radius);padding:2px 4px;font-family:inherit;font-size:.8rem;">
+        x
+        <input type="number" id="custom-h" value="256" min="16" max="800" style="width:50px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:var(--radius);padding:2px 4px;font-family:inherit;font-size:.8rem;">
+        <button class="btn" id="btn-apply-custom" style="padding:2px 7px;">OK</button>
+      </span>
+    </div>
+    <div style="margin-top:12px;"><button class="btn" id="modal-layout-close" style="width:100%;">Schliessen</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-hint">
+  <div class="modal-box">
+    <h3>Beispiel-Code laden</h3>
+    <div id="hint-list" style="display:flex;flex-direction:column;gap:7px;margin-bottom:12px;max-height:60vh;overflow-y:auto;"></div>
+    <button class="btn" id="hint-close" style="width:100%;">Abbrechen</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-newfile">
+  <div class="modal-box">
+    <h3>Neue Datei erstellen</h3>
+    <div style="margin-bottom:12px;">
+      <input type="text" id="newfile-name" placeholder="mein-programm.py"
+        style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:var(--radius);padding:6px 8px;font-family:'Courier New',monospace;font-size:.85rem;">
+    </div>
+    <div style="display:flex;gap:6px;">
+      <button class="btn run" id="btn-newfile-ok" style="flex:1;">Erstellen</button>
+      <button class="btn" id="btn-newfile-cancel" style="flex:1;">Abbrechen</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-video">
+  <div class="modal-box">
+    <h3>Video aufnehmen</h3>
+    <div class="modal-row">
+      <span>Aufnahmedauer</span>
+      <span style="display:flex;gap:6px;align-items:center;">
+        <input type="number" id="rec-duration" value="5" min="1" max="60"
+          style="width:55px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:var(--radius);padding:2px 4px;font-family:inherit;font-size:.85rem;">
+        Sekunden
+      </span>
+    </div>
+    <p style="margin-top:10px;font-size:.76rem;color:var(--text-dim);">Gespeichert als WebM. Die Aufnahme startet sofort.</p>
+    <div style="display:flex;gap:6px;margin-top:14px;">
+      <button class="btn run" id="btn-start-rec" style="flex:1;">Aufnehmen</button>
+      <button class="btn" onclick="closeModal('modal-video')" style="flex:1;">Abbrechen</button>
+    </div>
+  </div>
+</div>
+
+<script src="lib/codemirror.min.js"></script>
+<script src="lib/codemirror-python.min.js"></script>
+<script src="lib/closebrackets.min.js"></script>
+<script src="lib/show-hint.min.js"></script>
+<script src="lib/skulpt.min.js"></script>
+<script src="lib/skulpt-stdlib.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
